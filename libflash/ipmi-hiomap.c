@@ -447,7 +447,6 @@ static void hiomap_event(uint8_t events, void *context)
 
 	lock(&ctx->lock);
 	ctx->bmc_state = events | (ctx->bmc_state & HIOMAP_E_ACK_MASK);
-	ctx->update = true;
 	unlock(&ctx->lock);
 }
 
@@ -562,19 +561,11 @@ static bool ipmi_hiomap_restore_window(struct ipmi_hiomap *ctx)
 static int ipmi_hiomap_handle_events(struct ipmi_hiomap *ctx)
 {
 	uint8_t status;
-	bool update;
 
 	lock(&ctx->lock);
 	status = ctx->bmc_state;
-	update = ctx->update;
-	if (update) {
-		ctx->bmc_state &= ~HIOMAP_E_ACK_MASK;
-		ctx->update = false;
-	}
+	ctx->bmc_state &= ~HIOMAP_E_ACK_MASK;
 	unlock(&ctx->lock);
-
-	if (!update)
-		return 0;
 
 	if (!(status & HIOMAP_E_DAEMON_READY)) {
 		prerror("Daemon not ready\n");
