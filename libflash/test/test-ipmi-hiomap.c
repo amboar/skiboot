@@ -43,6 +43,7 @@ struct scenario_cmd {
 	struct scenario_cmd_data req;
 	struct scenario_cmd_data resp;
 	uint8_t cc;
+	size_t resp_size;
 };
 
 struct scenario_sel {
@@ -159,6 +160,9 @@ void ipmi_queue_msg_sync(struct ipmi_msg *msg)
 	assert((msg->netfn >> 2) == 0x3a);
 	assert(msg->cmd == 0x5a);
 	assert(msg->req_size >= 2);
+
+	if (cmd->resp_size)
+		msg->resp_size = cmd->resp_size;
 
 	if (memcmp(msg->data, &cmd->req, msg->req_size)) {
 		printf("Comparing received vs expected message\n");
@@ -1693,6 +1697,60 @@ static void test_hiomap_erase_error(void)
 	scenario_exit();
 }
 
+static const struct scenario_event scenario_hiomap_ack_malformed_small[] = {
+	{
+		.type = scenario_cmd,
+		.c = {
+			.req = {
+				.cmd = HIOMAP_C_ACK,
+				.seq = 1,
+				.args = { [0] = 0x3 },
+			},
+			.cc = IPMI_CC_NO_ERROR,
+			.resp_size = 1
+		},
+	},
+	SCENARIO_SENTINEL,
+};
+
+static void test_hiomap_ack_malformed_small(void)
+{
+	struct blocklevel_device *bl;
+
+	scenario_enter(scenario_hiomap_ack_malformed_small);
+	assert(ipmi_hiomap_init(&bl) > 0);
+	scenario_exit();
+}
+
+static const struct scenario_event scenario_hiomap_ack_malformed_large[] = {
+	{
+		.type = scenario_cmd,
+		.c = {
+			.req = {
+				.cmd = HIOMAP_C_ACK,
+				.seq = 1,
+				.args = { [0] = 0x3 },
+			},
+			.cc = IPMI_CC_NO_ERROR,
+			.resp_size = 3,
+			.resp = {
+				.cmd = HIOMAP_C_ACK,
+				.seq = 1,
+			},
+		},
+	},
+	SCENARIO_SENTINEL,
+};
+
+static void test_hiomap_ack_malformed_large(void)
+{
+	struct blocklevel_device *bl;
+
+	scenario_enter(scenario_hiomap_ack_malformed_large);
+	assert(ipmi_hiomap_init(&bl) > 0);
+	scenario_exit();
+}
+
 struct test_case {
 	const char *name;
 	void (*fn)(void);
@@ -1732,6 +1790,8 @@ struct test_case test_cases[] = {
 	TEST_CASE(test_hiomap_flush_error),
 	TEST_CASE(test_hiomap_ack_error),
 	TEST_CASE(test_hiomap_erase_error),
+	TEST_CASE(test_hiomap_ack_malformed_small),
+	TEST_CASE(test_hiomap_ack_malformed_large),
 	{ NULL, NULL },
 };
 
