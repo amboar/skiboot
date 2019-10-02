@@ -801,9 +801,10 @@ static struct option global_options[] = {
 	{ "ecc", no_argument, 0, 'e' },
 	{ "p8", no_argument, 0, '8' },
 	{ "p9", no_argument, 0, '9' },
+	{ "debug", no_argument, 0, 'g' },
 	{ 0 },
 };
-static const char *global_optstring = "+ef:p89";
+static const char *global_optstring = "+ef:p89g";
 
 int main(int argc, char **argv)
 {
@@ -857,6 +858,9 @@ int main(int argc, char **argv)
 			break;
 		case '9':
 			set_chip_gen(p9_chip_units);
+			break;
+		case 'g':
+			libflash_debug = true;
 			break;
 		case '?':
 			usage(progname);
