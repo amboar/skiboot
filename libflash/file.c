@@ -252,7 +252,7 @@ static int file_get_info(struct blocklevel_device *bl, const char **name,
 		*total_size = st.st_size;
 
 	if (erase_granule)
-		*erase_granule = 1;
+		*erase_granule = 4096;
 
 	if (name) {
 		rc = get_info_name(file_data, &(file_data->name));
@@ -285,7 +285,7 @@ int file_init(int fd, struct blocklevel_device **bl)
 	file_data->bl.write = &file_write;
 	file_data->bl.erase = &file_erase;
 	file_data->bl.get_info = &file_get_info;
-	file_data->bl.erase_mask = 0;
+	file_data->bl.erase_mask = 4096 - 1;
 
 	/*
 	 * If the blocklevel_device is only inited with file_init() then keep
@@ -313,6 +313,9 @@ int file_init(int fd, struct blocklevel_device **bl)
 		/* If not a char device or a regular file something went wrong */
 		goto out;
 	}
+	
+	/* HACK: Force blocklevel_smart_write() erase path */
+	file_data->bl.flags = WRITE_NEED_ERASE;
 
 	*bl = &(file_data->bl);
 	return 0;
