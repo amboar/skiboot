@@ -1,14 +1,14 @@
 #include <ccan/array_size/array_size.h>
 #include <ccan/tap/tap.h>
 
-static char array1[1];
-static int array2[2];
-static unsigned long array3[3][5];
+char array1[1];
+int array2[2];
+unsigned long array3[3][5];
 struct foo {
 	unsigned int a, b;
 	char string[100];
 };
-static struct foo array4[4];
+struct foo array4[4];
 
 /* Make sure they can be used in initializers. */
 static int array1_size = ARRAY_SIZE(array1);
