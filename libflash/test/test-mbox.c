@@ -41,9 +41,9 @@ static int run_flash_test(struct blocklevel_device *bl)
 	struct mbox_flash_data *mbox_flash;
 	char hello[] = "Hello World";
 	uint32_t erase_granule;
+	uint16_t *test = NULL;
 	uint64_t total_size;
 	const char *name;
-	uint16_t *test;
 	char *tmp;
 	int i, rc;
 
@@ -93,17 +93,17 @@ static int run_flash_test(struct blocklevel_device *bl)
 	rc = blocklevel_write(bl, 0, test, erase_granule * 10);
 	if (rc) {
 		ERR("blocklevel_write(0, erase_granule * 10) failed with err %d\n", rc);
-		return 1;
+		goto cleanup_test;
 	}
 	rc = blocklevel_write(bl, erase_granule * 20, test, erase_granule * 10);
 	if (rc) {
 		ERR("blocklevel_write(0x20000, 0x10000) failed with err %d\n", rc);
-		return 1;
+		goto cleanup_test;
 	}
 
 	if (mbox_server_memcmp(0, test, erase_granule * 10)) {
 		ERR("Test pattern mismatch !\n");
-		return 1;
+		goto cleanup_test;
 	}
 
 	/* Write "Hello world" straddling the 64k boundary */
@@ -112,26 +112,30 @@ static int run_flash_test(struct blocklevel_device *bl)
 	if (rc) {
 		ERR("blocklevel_write(0xfffc, %s, %lu) failed with err %d\n",
 				hello, sizeof(hello), rc);
-		return 1;
+		goto cleanup_test;
 	}
 
 	/* Check result */
-	if (mbox_server_memcmp((erase_granule * 10) - 8, hello, sizeof(hello))) {
+	rc = mbox_server_memcmp((erase_granule * 10) - 8, hello, sizeof(hello));
+	if (rc) {
 		ERR("Test string mismatch!\n");
-		return 1;
+		goto cleanup_test;
 	}
 
 	/* Erase granule is something but never 0x50, this shouldn't succeed */
 	rc = blocklevel_erase(bl, 0, 0x50);
 	if (!rc) {
 		ERR("blocklevel_erase(0, 0x50) didn't fail!\n");
-		return 1;
+		rc = 1;
+		goto cleanup_test;
 	}
 
 	/* Check it didn't silently erase */
-	if (mbox_server_memcmp(0, test, (erase_granule * 10) - 8)) {
+	rc = mbox_server_memcmp(0, test, (erase_granule * 10) - 8);
+	if (rc) {
 		ERR("Test pattern mismatch !\n");
-		return 1;
+		rc = 1;
+		goto cleanup_test;
 	}
 
 	/*
@@ -142,7 +146,7 @@ static int run_flash_test(struct blocklevel_device *bl)
 	rc = blocklevel_erase(bl, 0, erase_granule);
 	if (rc) {
 		ERR("blocklevel_erase(0, erase_granule) failed with err %d\n", rc);
-		return 1;
+		goto cleanup_test;
 	}
 
 	/*
@@ -157,7 +161,8 @@ static int run_flash_test(struct blocklevel_device *bl)
 	tmp = malloc(erase_granule * 2);
 	if (!tmp) {
 		ERR("malloc failed\n");
-		return 1;
+		rc = 1;
+		goto cleanup_test;
 	}
 	if (mbox_server_version() > 1) {
 		memset(tmp, 0xff, erase_granule);
@@ -268,6 +273,8 @@ static int run_flash_test(struct blocklevel_device *bl)
 	}
 out:
 	free(tmp);
+cleanup_test:
+	free(test);
 	return rc;
 }
 
