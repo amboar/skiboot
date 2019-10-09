@@ -6,6 +6,7 @@
 
 #include <stdbool.h>
 #include <ccan/short_types/short_types.h>
+#include <op-panel.h>
 
 /* Some fwd declarations for types used further down */
 struct phb;
