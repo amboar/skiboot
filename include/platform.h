@@ -5,6 +5,7 @@
 #define __PLATFORM_H
 
 #include <stdbool.h>
+#include <ccan/short_types/short_types.h>
 
 /* Some fwd declarations for types used further down */
 struct phb;
