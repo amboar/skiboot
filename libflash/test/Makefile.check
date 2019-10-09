@@ -32,6 +32,8 @@ check_PROGRAMS = \
 
 TEST_FLAGS = -D__TEST__ -MMD -MP
 
+override HOSTCFLAGS += $(call try-cflags,$(HOSTCC),-Wno-suggest-attribute=const)
+
 .PHONY: libflash-check libflash-coverage
 libflash-check: $(check_PROGRAMS:%=%-check) $(CORE_TEST:%=%-gcov-run)
 libflash-coverage: $(check_PROGRAMS:%=%-gcov-run)
@@ -119,7 +121,7 @@ HOST_TRIPLE = $(shell $(HOSTCC) -dumpmachine)
 # mirrored structure.
 $(HOST_TRIPLE)/%.o : %.c
 	@mkdir -p $(dir $@)
-	$(call Q, HOSTCC ,$(HOSTCC) $(HOSTCFLAGS) $(TEST_FLAGS) -Wno-suggest-attribute=const -g -c -o $@ $<, $@)
+	$(call Q, HOSTCC ,$(HOSTCC) $(HOSTCFLAGS) $(TEST_FLAGS) -g -c -o $@ $<, $@)
 
 # Use GNU make metaprogramming dynamically define targets and prequisites for
 # binaries listed in check_PROGRAMS.
@@ -133,7 +135,7 @@ $(HOST_TRIPLE)/%.o : %.c
 # [1] https://www.gnu.org/software/make/manual/html_node/Secondary-Expansion.html#Secondary-Expansion
 .SECONDEXPANSION:
 $(check_PROGRAMS) : $$(call target2prereq,$$@,$(HOST_TRIPLE)/)
-	$(call Q, HOSTCC , $(HOSTCC) $(HOSTCFLAGS) $(TEST_FLAGS) -Wno-suggest-attribute=const -O0 -g -o $@ $^, $@)
+	$(call Q, HOSTCC , $(HOSTCC) $(HOSTCFLAGS) $(TEST_FLAGS) -O0 -g -o $@ $^, $@)
 
 .PHONY: libflash-test-clean
 libflash-test-clean: OBJ_STEMS = $(call objstem,$(check_PROGRAMS),$(HOST_TRIPLE)/)
@@ -148,11 +150,11 @@ $(check_PROGRAMS:%=%-gcov-run) : %-run: %
 
 $(HOST_TRIPLE)/gcov/%.o : %.c
 	@mkdir -p $(dir $@)
-	$(call Q, HOSTCC ,$(HOSTCC) $(HOSTCFLAGS) $(HOSTGCOVCFLAGS) $(TEST_FLAGS) -Wno-suggest-attribute=const -g -c -o $@ $<, $@)
+	$(call Q, HOSTCC ,$(HOSTCC) $(HOSTCFLAGS) $(HOSTGCOVCFLAGS) $(TEST_FLAGS) -g -c -o $@ $<, $@)
 
 .SECONDEXPANSION:
 $(check_PROGRAMS:%=%-gcov) : $$(call target2prereq,$$(patsubst %-gcov,%,$$@),$(HOST_TRIPLE)/gcov/)
-	$(call Q, HOSTCC , $(HOSTCC) $(HOSTCFLAGS) $(HOSTGCOVCFLAGS) $(TEST_FLAGS) -Wno-suggest-attribute=const -O0 -g -o $@ $^, $@)
+	$(call Q, HOSTCC , $(HOSTCC) $(HOSTCFLAGS) $(HOSTGCOVCFLAGS) $(TEST_FLAGS) -O0 -g -o $@ $^, $@)
 
 .PHONY: libflash-test-gcov-clean
 libflash-test-gcov-clean: GCOV_OBJ_STEMS = $(call objstem,$(check_PROGRAMS),$(HOST_TRIPLE)/gcov/)
