@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <compiler.h>
+#include <platform.h>
 #include <stdbool.h>
 
 /* Stubs for quirk_astbmc_vga() */
