@@ -123,63 +123,74 @@ int main(void)
 
 	if (blocklevel_ecc_protect(bl, 0, 0x1000)) {
 		ERR("Failed to blocklevel_ecc_protect!\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	/* 0x1000 -> 0x3000 should remain unprotected */
 
 	if (blocklevel_ecc_protect(bl, 0x3000, 0x1000)) {
 		ERR("Failed to blocklevel_ecc_protect(0x3000, 0x1000)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 	if (blocklevel_ecc_protect(bl, 0x2f00, 0x1100)) {
 		ERR("Failed to blocklevel_ecc_protect(0x2f00, 0x1100)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	/* Zero length protection */
 	if (!blocklevel_ecc_protect(bl, 0x4000, 0)) {
 		ERR("Shouldn't have succeeded blocklevel_ecc_protect(0x4000, 0)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	/* Minimum creatable size */
 	if (blocklevel_ecc_protect(bl, 0x4000, BYTES_PER_ECC)) {
 		ERR("Failed to blocklevel_ecc_protect(0x4000, BYTES_PER_ECC)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	/* Deal with overlapping protections */
 	if (blocklevel_ecc_protect(bl, 0x100, 0x1000)) {
 		ERR("Failed to protect overlaping region blocklevel_ecc_protect(0x100, 0x1000)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	/* Deal with overflow */
 	if (!blocklevel_ecc_protect(bl, 1, 0xFFFFFFFF)) {
 		ERR("Added an 'overflow' protection blocklevel_ecc_protect(1, 0xFFFFFFFF)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	/* Protect everything */
 	if (blocklevel_ecc_protect(bl, 0, 0xFFFFFFFF)) {
 		ERR("Couldn't protect everything blocklevel_ecc_protect(0, 0xFFFFFFFF)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (ecc_protected(bl, 0, 1, NULL) != 1) {
 		ERR("Invaid result for ecc_protected(0, 1)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (ecc_protected(bl, 0, 0x1000, NULL) != 1) {
 		ERR("Invalid result for ecc_protected(0, 0x1000)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (ecc_protected(bl, 0x100, 0x100, NULL) != 1) {
 		ERR("Invalid result for ecc_protected(0x0100, 0x100)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	/* Clear the protections */
@@ -187,95 +198,113 @@ int main(void)
 	/* Reprotect */
 	if (blocklevel_ecc_protect(bl, 0x3000, 0x1000)) {
 		ERR("Failed to blocklevel_ecc_protect(0x3000, 0x1000)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 	/* Deal with overlapping protections */
 	if (blocklevel_ecc_protect(bl, 0x100, 0x1000)) {
 		ERR("Failed to protect overlaping region blocklevel_ecc_protect(0x100, 0x1000)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (ecc_protected(bl, 0x1000, 0, NULL) != 1) {
 		ERR("Invalid result for ecc_protected(0x1000, 0)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (ecc_protected(bl, 0x1000, 0x1000, NULL) != -1) {
 		ERR("Invalid result for ecc_protected(0x1000, 0x1000)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (ecc_protected(bl, 0x1000, 0x100, NULL) != 1) {
 		ERR("Invalid result for ecc_protected(0x1000, 0x100)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (ecc_protected(bl, 0x2000, 0, NULL) != 0) {
 		ERR("Invalid result for ecc_protected(0x2000, 0)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (ecc_protected(bl, 0x4000, 1, NULL) != 0) {
 		ERR("Invalid result for ecc_protected(0x4000, 1)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	/* Check for asking for a region with mixed protection */
 	if (ecc_protected(bl, 0x100, 0x2000, NULL) != -1) {
 		ERR("Invalid result for ecc_protected(0x100, 0x2000)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	/* Test the auto extending of regions */
 	if (blocklevel_ecc_protect(bl, 0x5000, 0x100)) {
 		ERR("Failed to blocklevel_ecc_protect(0x5000, 0x100)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (blocklevel_ecc_protect(bl, 0x5100, 0x100)) {
 		ERR("Failed to blocklevel_ecc_protect(0x5100, 0x100)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (blocklevel_ecc_protect(bl, 0x5200, 0x100)) {
 		ERR("Failed to blocklevel_ecc_protect(0x5200, 0x100)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (ecc_protected(bl, 0x5120, 0x10, NULL) != 1) {
 		ERR("Invalid result for ecc_protected(0x5120, 0x10)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (blocklevel_ecc_protect(bl, 0x4f00, 0x100)) {
 		ERR("Failed to blocklevel_ecc_protected(0x4900, 0x100)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (blocklevel_ecc_protect(bl, 0x4900, 0x100)) {
 		ERR("Failed to blocklevel_ecc_protected(0x4900, 0x100)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (ecc_protected(bl, 0x4920, 0x10, NULL) != 1) {
 		ERR("Invalid result for ecc_protected(0x4920, 0x10)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (blocklevel_ecc_protect(bl, 0x5290, 0x10)) {
 		ERR("Failed to blocklevel_ecc_protect(0x5290, 0x10)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	/* Test the auto extending of regions */
 	if (blocklevel_ecc_protect(bl, 0x6000, 0x100)) {
 		ERR("Failed to blocklevel_ecc_protect(0x6000, 0x100)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	if (blocklevel_ecc_protect(bl, 0x6200, 0x100)) {
 		ERR("Failed to blocklevel_ecc_protect(0x6200, 0x100)\n");
-		return 1;
+		rc = 1;
+		goto cleanup_prot;
 	}
 
 	/* Test ECC reading and writing being 100% transparent to the
@@ -287,6 +316,7 @@ int main(void)
 		rc = 1;
 		goto out;
 	}
+	free(bl->ecc_prot.prot);
 	memset(bl, 0, sizeof(*bl));
 	bl_mem.read = &bl_test_read;
 	bl_mem.write = &bl_test_write;
@@ -660,5 +690,7 @@ int main(void)
 out:
 	free(buf);
 	free(data);
+cleanup_prot:
+	free(bl->ecc_prot.prot);
 return rc;
 }
