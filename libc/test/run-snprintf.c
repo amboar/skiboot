@@ -235,8 +235,7 @@ int main(void)
 	test_printf_h(256);
 	test_printf_h(-1);
 	test_printf_h(32767);
-	test_printf_h(32768);
-	test_printf_h(65535);
+	test_printf_h(-32768);
 	test_printf_z(0);
 	test_printf_z(-1);
 	test_printf_z(12345);
