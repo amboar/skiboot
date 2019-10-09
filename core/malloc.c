@@ -13,7 +13,7 @@
 
 #define DEFAULT_ALIGN __alignof__(long)
 
-void *__memalign(size_t blocksize, size_t bytes, const char *location)
+__warn_unused_result void *__memalign(size_t blocksize, size_t bytes, const char *location)
 {
 	void *p;
 
@@ -24,7 +24,7 @@ void *__memalign(size_t blocksize, size_t bytes, const char *location)
 	return p;
 }
 
-void *__malloc(size_t bytes, const char *location)
+__warn_unused_result void *__malloc(size_t bytes, const char *location)
 {
 	return __memalign(DEFAULT_ALIGN, bytes, location);
 }
@@ -36,7 +36,7 @@ void __free(void *p, const char *location)
 	unlock(&skiboot_heap.free_list_lock);
 }
 
-void *__realloc(void *ptr, size_t size, const char *location)
+__warn_unused_result void *__realloc(void *ptr, size_t size, const char *location)
 {
 	void *newptr;
 
@@ -66,7 +66,7 @@ void *__realloc(void *ptr, size_t size, const char *location)
 	return newptr;
 }
 
-void *__zalloc(size_t bytes, const char *location)
+__warn_unused_result void *__zalloc(size_t bytes, const char *location)
 {
 	void *p = __malloc(bytes, location);
 
