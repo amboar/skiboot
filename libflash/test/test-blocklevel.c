@@ -119,7 +119,7 @@ int main(void)
 	struct blocklevel_device *bl = &bl_mem;
 	uint64_t with_ecc[10], without_ecc[10];
 	char *buf = NULL, *data = NULL;
-	int i, rc, miss;
+	int i, rc;
 
 	if (blocklevel_ecc_protect(bl, 0, 0x1000)) {
 		ERR("Failed to blocklevel_ecc_protect!\n");
@@ -332,16 +332,17 @@ int main(void)
 	 */
 	bl_mem.write = &bl_test_bad_write;
 	bl_mem.read = &bl_test_bad_read;
-	if (blocklevel_smart_erase(bl, 0x100, 0x100)) {
+	rc = blocklevel_smart_erase(bl, 0x100, 0x100);
+	if (rc) {
 		ERR("Failed to blocklevel_smart_erase(0x100, 0x100)\n");
 		goto out;
 	}
-	miss = check_buf(buf, 0x100, 0x200);
-	if (miss) {
+	rc = check_buf(buf, 0x100, 0x200);
+	if (rc) {
 		ERR("Buffer mismatch after blocklevel_smart_erase(0x100, 0x100) at 0x%0x\n",
-				miss == -1 ? 0 : miss);
-		dump_buf(buf, 0xfc, 0x105, miss == -1 ? 0 : miss);
-		dump_buf(buf, 0x1fc, 0x205, miss == -1 ? 0 : miss);
+				rc == -1 ? 0 : rc);
+		dump_buf(buf, 0xfc, 0x105, rc == -1 ? 0 : rc);
+		dump_buf(buf, 0x1fc, 0x205, rc == -1 ? 0 : rc);
 		goto out;
 	}
 	bl_mem.read = &bl_test_read;
@@ -349,105 +350,112 @@ int main(void)
 
 	reset_buf(buf);
 	/* Test 2: Only touch one erase block */
-	if (blocklevel_smart_erase(bl, 0x20, 0x40)) {
+	rc = blocklevel_smart_erase(bl, 0x20, 0x40);
+	if (rc) {
 		ERR("Failed to blocklevel_smart_erase(0x20, 0x40)\n");
 		goto out;
 	}
-	miss = check_buf(buf, 0x20, 0x60);
-	if (miss) {
+	rc = check_buf(buf, 0x20, 0x60);
+	if (rc) {
 		ERR("Buffer mismatch after blocklevel_smart_erase(0x20, 0x40) at 0x%x\n",
-				miss == -1 ? 0 : miss);
-		dump_buf(buf, 0x1c, 0x65, miss == -1 ? 0 : miss);
+				rc == -1 ? 0 : rc);
+		dump_buf(buf, 0x1c, 0x65, rc == -1 ? 0 : rc);
 		goto out;
 	}
 
 	reset_buf(buf);
 	/* Test 3: Start aligned but finish somewhere in it */
-	if (blocklevel_smart_erase(bl, 0x100, 0x50)) {
+	rc = blocklevel_smart_erase(bl, 0x100, 0x50);
+	if (rc) {
 		ERR("Failed to blocklevel_smart_erase(0x100, 0x50)\n");
 		goto out;
 	}
-	miss = check_buf(buf, 0x100, 0x150);
-	if (miss) {
+	rc = check_buf(buf, 0x100, 0x150);
+	if (rc) {
 		ERR("Buffer mismatch after blocklevel_smart_erase(0x100, 0x50) at 0x%0x\n",
-				miss == -1 ? 0 : miss);
-		dump_buf(buf, 0xfc, 0x105, miss == -1 ? 0 : miss);
-		dump_buf(buf, 0x14c, 0x155, miss == -1 ? 0 : miss);
+				rc == -1 ? 0 : rc);
+		dump_buf(buf, 0xfc, 0x105, rc == -1 ? 0 : rc);
+		dump_buf(buf, 0x14c, 0x155, rc == -1 ? 0 : rc);
 		goto out;
 	}
 
 	reset_buf(buf);
 	/* Test 4: Start somewhere in it, finish aligned */
-	if (blocklevel_smart_erase(bl, 0x50, 0xb0)) {
+	rc = blocklevel_smart_erase(bl, 0x50, 0xb0);
+	if (rc) {
 		ERR("Failed to blocklevel_smart_erase(0x50, 0xb0)\n");
 		goto out;
 	}
-	miss = check_buf(buf, 0x50, 0x100);
-	if (miss) {
+	rc = check_buf(buf, 0x50, 0x100);
+	if (rc) {
 		ERR("Buffer mismatch after blocklevel_smart_erase(0x50, 0xb0) at 0x%x\n",
-				miss == -1 ? 0 : miss);
-		dump_buf(buf, 0x4c, 0x55, miss == -1 ? 0 : miss);
-		dump_buf(buf, 0x100, 0x105, miss == -1 ? 0 : miss);
+				rc == -1 ? 0 : rc);
+		dump_buf(buf, 0x4c, 0x55, rc == -1 ? 0 : rc);
+		dump_buf(buf, 0x100, 0x105, rc == -1 ? 0 : rc);
 		goto out;
 	}
 
 	reset_buf(buf);
 	/* Test 5: Cover two erase blocks exactly */
-	if (blocklevel_smart_erase(bl, 0x100, 0x200)) {
+	rc = blocklevel_smart_erase(bl, 0x100, 0x200);
+	if (rc) {
 		ERR("Failed to blocklevel_smart_erase(0x100, 0x200)\n");
 		goto out;
 	}
-	miss = check_buf(buf, 0x100, 0x300);
-	if (miss) {
+	rc = check_buf(buf, 0x100, 0x300);
+	if (rc) {
 		ERR("Buffer mismatch after blocklevel_smart_erase(0x100, 0x200) at 0x%x\n",
-				miss == -1 ? 0 : miss);
-		dump_buf(buf, 0xfc, 0x105, miss == -1 ? 0 : miss);
-		dump_buf(buf, 0x2fc, 0x305, miss == -1 ? 0 : miss);
+				rc == -1 ? 0 : rc);
+		dump_buf(buf, 0xfc, 0x105, rc == -1 ? 0 : rc);
+		dump_buf(buf, 0x2fc, 0x305, rc == -1 ? 0 : rc);
 		goto out;
 	}
 
 	reset_buf(buf);
 	/* Test 6: Erase 1.5 blocks (start aligned) */
-	if (blocklevel_smart_erase(bl, 0x100, 0x180)) {
+	rc = blocklevel_smart_erase(bl, 0x100, 0x180);
+	if (rc) {
 		ERR("Failed to blocklevel_smart_erase(0x100, 0x180)\n");
 		goto out;
 	}
-	miss = check_buf(buf, 0x100, 0x280);
-	if (miss) {
+	rc = check_buf(buf, 0x100, 0x280);
+	if (rc) {
 		ERR("Buffer mismatch after blocklevel_smart_erase(0x100, 0x180) at 0x%x\n",
-				miss == -1 ? 0 : miss);
-		dump_buf(buf, 0xfc, 0x105, miss == -1 ? 0 : miss);
-		dump_buf(buf, 0x27c, 0x285, miss == -1 ? 0 : miss);
+				rc == -1 ? 0 : rc);
+		dump_buf(buf, 0xfc, 0x105, rc == -1 ? 0 : rc);
+		dump_buf(buf, 0x27c, 0x285, rc == -1 ? 0 : rc);
 		goto out;
 	}
 
 	reset_buf(buf);
 	/* Test 7: Erase 1.5 blocks (end aligned) */
-	if (blocklevel_smart_erase(bl, 0x80, 0x180)) {
+	rc = blocklevel_smart_erase(bl, 0x80, 0x180);
+	if (rc) {
 		ERR("Failed to blocklevel_smart_erase(0x80, 0x180)\n");
 		goto out;
 	}
-	miss = check_buf(buf, 0x80, 0x200);
-	if (miss) {
+	rc = check_buf(buf, 0x80, 0x200);
+	if (rc) {
 		ERR("Buffer mismatch after blocklevel_smart_erase(0x80, 0x180) at 0x%x\n",
-				miss == -1 ? 0 : miss);
-		dump_buf(buf, 0x7c, 0x85, miss == -1 ? 0 : miss);
-		dump_buf(buf, 0x1fc, 0x205, miss == -1 ? 0 : miss);
+				rc == -1 ? 0 : rc);
+		dump_buf(buf, 0x7c, 0x85, rc == -1 ? 0 : rc);
+		dump_buf(buf, 0x1fc, 0x205, rc == -1 ? 0 : rc);
 		goto out;
 	}
 
 	reset_buf(buf);
 	/* Test 8: Erase a big section, not aligned */
-	if (blocklevel_smart_erase(bl, 0x120, 0x544)) {
+	rc = blocklevel_smart_erase(bl, 0x120, 0x544);
+	if (rc) {
 		ERR("Failed to blocklevel_smart_erase(0x120, 0x544)\n");
 		goto out;
 	}
-	miss = check_buf(buf, 0x120, 0x664);
-	if (miss) {
+	rc = check_buf(buf, 0x120, 0x664);
+	if (rc) {
 		ERR("Buffer mismatch after blocklevel_smart_erase(0x120, 0x544) at 0x%x\n",
-				miss == -1 ? 0 : miss);
-		dump_buf(buf, 0x11c, 0x125, miss == -1 ? 0 : miss);
-		dump_buf(buf, 0x65f, 0x669, miss == -1 ? 0 : miss);
+				rc == -1 ? 0 : rc);
+		dump_buf(buf, 0x11c, 0x125, rc == -1 ? 0 : rc);
+		dump_buf(buf, 0x65f, 0x669, rc == -1 ? 0 : rc);
 		goto out;
 	}
 
