@@ -43,6 +43,7 @@ HOSTCFLAGS += $(call try-cflag,$(HOSTCC),-m64)
 HOSTCFLAGS += $(call try-cflag,$(HOSTCC),-Wjump-misses-init) \
 	  $(call try-cflag,$(HOSTCC),-Wsuggest-attribute=const) \
 	  $(call try-cflag,$(HOSTCC),-Wsuggest-attribute=noreturn)
+HOSTCFLAGS += $(call try-cflag,$(HOSTCC),-fsanitize=address,undefined)
 HOSTCFLAGS += -DDEBUG -DCCAN_LIST_DEBUG
 
 # We want small stack usage for skiboot

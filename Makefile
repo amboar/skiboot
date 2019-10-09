@@ -26,7 +26,7 @@ endif
 DEBUG ?= 0
 
 # Run tests under valgrind?
-USE_VALGRIND ?= 1
+USE_VALGRIND ?= 0
 
 #
 # Optional location of embedded linux kernel file
