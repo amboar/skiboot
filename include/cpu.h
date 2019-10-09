@@ -212,7 +212,13 @@ extern u8 get_available_nr_cores_in_chip(u32 chip_id);
 		core = next_available_core_in_chip(core, chip_id))
 
 /* Return the caller CPU (only after init_cpu_threads) */
+#ifdef __SKIBOOT__
 register struct cpu_thread *__this_cpu asm("r13");
+#else
+/* Hack to keep `make check HOSTCC=clang` happy. Completely broken otherwise */
+struct cpu_thread *__this_cpu;
+#endif
+
 static inline __nomcount struct cpu_thread *this_cpu(void)
 {
 	return __this_cpu;
