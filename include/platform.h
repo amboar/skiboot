@@ -4,6 +4,8 @@
 #ifndef __PLATFORM_H
 #define __PLATFORM_H
 
+#include <stdbool.h>
+
 /* Some fwd declarations for types used further down */
 struct phb;
 struct pci_device;
