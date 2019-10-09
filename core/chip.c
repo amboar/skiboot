@@ -6,6 +6,7 @@
 #include <console.h>
 #include <device.h>
 #include <timebase.h>
+#include <string.h>
 
 static struct proc_chip *chips[MAX_CHIPS];
 enum proc_chip_quirks proc_chip_quirks;

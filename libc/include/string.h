@@ -28,7 +28,8 @@
 #define strlen __builtin_strlen
 size_t strnlen(const char *s, size_t maxlen);
 #define strstr __builtin_strstr
-#define strdup __builtin_strdup
+char *__strdup(const char *);
+#define strdup __strdup
 char *strtok(char *src, const char *pattern);
 
 #define memset __builtin_memset

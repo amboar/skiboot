@@ -17,6 +17,7 @@
 #include <types.h>
 #include <mem_region.h>
 #include <mem_region-malloc.h>
+#include <string.h>
 
 /* Memory poisoning on free (if POISON_MEM_REGION set to 1) */
 #ifdef DEBUG

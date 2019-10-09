@@ -4,12 +4,13 @@
  */
 
 #include <config.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <stdio.h>
 
 #define BITS_PER_LONG (sizeof(long) * 8)
 
 #include "dummy-cpu.h"
-
-#include <stdlib.h>
 
 static void *real_malloc(size_t size)
 {
@@ -30,17 +31,16 @@ static void real_free(void *p)
 
 /* We need mem_region to accept __location__ */
 #define is_rodata(p) true
+
+#include "../../libc/string/strdup.c"
 #include "../mem_region.c"
 #include "../malloc.c"
 
 /* But we need device tree to make copies of names. */
 #undef is_rodata
 #define is_rodata(p) false
-#include "../../libc/string/strdup.c"
 
 #include "../device.c"
-#include <assert.h>
-#include <stdio.h>
 
 enum proc_chip_quirks proc_chip_quirks;
 

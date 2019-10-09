@@ -14,8 +14,8 @@
 
 size_t strlen(const char *s);
 void *memcpy(void *dest, const void *src, size_t n);
-char *strdup(const char *src);
-char *strdup(const char *src)
+char *__strdup(const char *src);
+char *__strdup(const char *src)
 {
 	size_t len = strlen(src) + 1;
 	char *ret;
@@ -25,3 +25,7 @@ char *strdup(const char *src)
 		memcpy(ret, src, len);
 	return ret;
 }
+
+#ifndef strdup
+#define strdup __strdup
+#endif
