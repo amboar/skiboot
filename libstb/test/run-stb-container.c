@@ -16,6 +16,7 @@ int main(void)
 	assert(stb_is_container(c, SECURE_BOOT_HEADERS_SIZE) == false);
 	c->magic_number = cpu_to_be32(ROM_MAGIC_NUMBER);
 	assert(stb_is_container(c, SECURE_BOOT_HEADERS_SIZE) == true);
+	free(c);
 
 	return 0;
 }
