@@ -54,6 +54,9 @@ int main(void)
 	a[3] = pool_get(&pool, POOL_HIGH);
 	assert(a[3]);
 
+	/* Keep -fsanitize=leak happy */
+	free(pool.buf);
+
 	/* This exits depending on whether all tests passed */
 	return 0;
 }
