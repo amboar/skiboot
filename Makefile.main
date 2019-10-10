@@ -49,7 +49,7 @@ HOSTCFLAGS += -DDEBUG -DCCAN_LIST_DEBUG
 # We want small stack usage for skiboot
 # but host compilation of unit tests tend to inline heavily,
 # which creates larger stack frames and triggering useless warnings
-HOSTCFLAGS += -Wframe-larger-than=4096
+HOSTCFLAGS += -Wframe-larger-than=12288
 CWARNS += -Wframe-larger-than=1024
 
 HOSTGCOVCFLAGS = -fprofile-arcs -ftest-coverage -lgcov -O0 -g -pg
