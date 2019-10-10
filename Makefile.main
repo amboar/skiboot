@@ -30,7 +30,7 @@ CWARNS := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 	  -Werror-implicit-function-declaration -Wdeclaration-after-statement \
 	  -Wno-pointer-sign -Wextra -Wno-sign-compare \
 	  -Wmissing-prototypes -Wmissing-declarations \
-	  -Wwrite-strings -Wcast-align \
+	  -Wwrite-strings \
 	  -Winit-self \
 	  -Werror
 
@@ -167,8 +167,7 @@ LDFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
 
 # Workarounds
 # TODO: Fix the issues these hide, and remove them
-CFLAGS += -Wno-cast-align \
-	-Wno-unused-command-line-argument \
+CFLAGS += -Wno-unused-command-line-argument \
 	-Wno-unknown-warning-option \
 	-Wno-gnu-variable-sized-type-not-at-end \
 	-Wno-address-of-packed-member \
